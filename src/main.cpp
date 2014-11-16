@@ -18,7 +18,8 @@ int main(int argc, char* argv[]) {
 	lexer_state state;
 	state.init(infile);
 	while ((t = state.next_token()) != nullptr) {
-		LOG_INFO("%s (%s)", t->name(), t->text());
+		string desc = t->to_str();
+		LOG_INFO("%s", desc.c_str());
 		delete t;
 	}
 

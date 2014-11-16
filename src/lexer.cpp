@@ -77,15 +77,15 @@ token* lexer_state::next_token()
 		if (ch == ':') {
 			NEXT;
 			if (ch == ':') {
-				ret = new token(T_DOUBLE_COLON, "::", _file, _line, _column);
+				ret = new token(T_DOUBLE_COLON, "::", _file, _line, _column-1);
 				NEXT;
 				return ret;
 			} else if (ch == '=') {
-				ret = new token(T_COLON_ASSIGN, ":=", _file, _line, _column);
+				ret = new token(T_COLON_ASSIGN, ":=", _file, _line, _column-1);
 				NEXT;
 				return ret;
 			} else {
-				ret = new token(T_COLON, ":", _file, _line, _column);
+				ret = new token(T_COLON, ":", _file, _line, _column-1);
 				return ret;
 			}
 		}
@@ -185,6 +185,8 @@ token* lexer_state::read_string(int ch)
 		return nullptr;
 	}
 
+	int start_col = _column;
+
 	string text;
 	NEXT;
 	while (ch != '"') {
@@ -226,7 +228,7 @@ token* lexer_state::read_string(int ch)
 		NEXT;
 	}
 	NEXT; // skip "
-	return new token(T_STRING, text, _file, _line, _column - text.length());
+	return new token(T_STRING, text, _file, _line, start_col);
 }
 
 token* lexer_state::read_ident(int ch)

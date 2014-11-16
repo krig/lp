@@ -1,5 +1,8 @@
 #pragma once
 
+#include "strfmt.hpp"
+
+
 #define TOKENS					\
 	TOKEN(KEYWORD),				\
 		TOKEN(IDENTIFIER),		\
@@ -39,6 +42,14 @@ struct token {
 
 	const char* name() const { return token_name[_type]; }
 	const char* text() const { return _text.c_str(); }
+
+	string to_str() const {
+		strfmt<512> s("%s (%s) (%s:%d:%d)",
+			      token_name[_type],
+			      _text.c_str(),
+			      _file, _line, _column);
+		return s.str();
+	}
 
 	Token _type;
 	string _text;
