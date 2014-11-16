@@ -2,7 +2,6 @@
 
 #define UTIL_CHECK_PRINTF(fmt, idx) __attribute__ ((format (printf, fmt, idx)))
 
-namespace util {
 	namespace logging {
 		enum Colors { RED = 91, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE };
 
@@ -62,9 +61,8 @@ namespace util {
 		};
 
 	}
-}
 
-#define LOG_TRACE util::logging::log_context(__FILE__, __LINE__, __FUNCTION__).trace
-#define LOG_INFO util::logging::log_context(__FILE__, __LINE__, __FUNCTION__).info
-#define LOG_WARN util::logging::log_context(__FILE__, __LINE__, __FUNCTION__).warn
-#define LOG_ERROR util::logging::log_context(__FILE__, __LINE__, __FUNCTION__).error
+#define LOG_TRACE logging::log_context(__FILE__, __LINE__, __FUNCTION__).trace
+#define LOG_INFO logging::log_context(__FILE__, __LINE__, __FUNCTION__).info
+#define LOG_WARN logging::log_context(__FILE__, __LINE__, __FUNCTION__).warn
+#define LOG_ERROR logging::log_context(__FILE__, __LINE__, __FUNCTION__).error

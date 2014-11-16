@@ -1,7 +1,6 @@
 #include "common.hpp"
 #include "file.hpp"
 
-namespace util {
 	size_t file::size() const {
 		if (_size == 0) {
 			long now = tell();
@@ -37,4 +36,3 @@ namespace util {
 		}
 		return "";
 	}
-}

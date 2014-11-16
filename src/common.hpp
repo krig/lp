@@ -48,13 +48,11 @@ namespace std {
 	}
 }
 
-namespace util {
-	template <size_t Pad = 4>
-	inline void bytevector_pad(vector<uint8_t>& vec) {
-		const size_t size = vec.size();
-		if (size & (Pad - 1))
-			vec.resize((size & ~(Pad - 1)) + Pad, 0);
-	}
+template <size_t Pad = 4>
+inline void bytevector_pad(vector<uint8_t>& vec) {
+	const size_t size = vec.size();
+	if (size & (Pad - 1))
+		vec.resize((size & ~(Pad - 1)) + Pad, 0);
 }
 
 template <typename I>
