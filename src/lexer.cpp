@@ -127,6 +127,11 @@ token* lexer_state::next_token()
 			NEXT;
 			return ret;
 		}
+		if (ch == '=') {
+			ret = new token(T_EQUAL, "=", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
 
 		if (ch == '"') {
 			return read_string(ch);
@@ -168,6 +173,29 @@ token* lexer_state::read_string(int ch)
 	while (ch != '"') {
 		if (ch == '\\') {
 			NEXT;
+			switch (ch) {
+			case '\\':
+			case '"':
+				text += ch;
+				NEXT;
+				continue;
+			case 'n':
+				text += '\n';
+				NEXT;
+				continue;
+			case 'r':
+				text += '\r';
+				NEXT;
+				continue;
+			case 'b':
+				text += '\b';
+				NEXT;
+				continue;
+			case 't':
+				text += '\t';
+				NEXT;
+				continue;
+			}
 		}
 		if (ch == '\n') {
 			LOG_ERROR("err, newline in string");
@@ -176,6 +204,7 @@ token* lexer_state::read_string(int ch)
 		text += ch;
 		NEXT;
 	}
+	NEXT; // skip "
 	return new token(T_STRING, text, _file, _line, _column - text.length());
 }
 
