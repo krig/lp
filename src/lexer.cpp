@@ -23,7 +23,19 @@ void lexer_state::init(const char* filename)
 #define NEXTLINE { _column = 0; ++_line; ++_offset; ch = _text[_offset]; }
 
 namespace {
-	set<string> keywords { "return" };
+	set<string> keywords {
+		"return",
+		"if",
+		"then",
+		"else",
+		"for",
+		"match",
+		"use",
+		"struct",
+		"enum",
+		"union",
+		"sizeof",
+	};
 
 	inline bool isident0(int ch) {
 		return isalpha(ch) || ch == '_';
@@ -69,7 +81,7 @@ token* lexer_state::next_token()
 				NEXT;
 				return ret;
 			} else if (ch == '=') {
-				ret = new token(T_COLON_EQUAL, ":=", _file, _line, _column);
+				ret = new token(T_COLON_ASSIGN, ":=", _file, _line, _column);
 				NEXT;
 				return ret;
 			} else {
@@ -128,7 +140,7 @@ token* lexer_state::next_token()
 			return ret;
 		}
 		if (ch == '=') {
-			ret = new token(T_EQUAL, "=", _file, _line, _column);
+			ret = new token(T_ASSIGN, "=", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
@@ -198,6 +210,10 @@ token* lexer_state::read_string(int ch)
 				continue;
 			case 't':
 				text += '\t';
+				NEXT;
+				continue;
+			default:
+				LOG_WARN("Unknown escape sequence in string");
 				NEXT;
 				continue;
 			}
