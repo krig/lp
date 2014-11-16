@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include "os.hpp"
+#include "lexer.hpp"
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -13,6 +14,13 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	
+	token* t;
+	lexer_state state;
+	state.init(infile);
+	while ((t = state.next_token()) != nullptr) {
+		LOG_INFO("%s (%s)", t->name(), t->text());
+		delete t;
+	}
+
 	return 0;
 }
