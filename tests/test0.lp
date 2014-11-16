@@ -4,6 +4,12 @@ foo :: (a: int, b: int) -> int {
     return a + b;
 }
 
+varargs :: (a: int, ...) -> () {
+    for a {
+        println("{}", it);
+    }
+}
+
 main :: () {
     a := 3;
     b := 4.5; # another comment

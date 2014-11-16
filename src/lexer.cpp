@@ -216,8 +216,14 @@ token* lexer_state::next_token()
 				ret = read_number(ch);
 			} else if (PEEK == '.') {
 				NEXT;
-				NEXT;
-				*ret = token(T_DOTDOT, "..", _file, _line, _column - 2);
+				if (PEEK == '.') {
+					NEXT;
+					NEXT;
+					*ret = token(T_DOTDOTDOT, "...", _file, _line, _column - 2);
+				} else {
+					NEXT;
+					*ret = token(T_DOTDOT, "..", _file, _line, _column - 2);
+				}
 			} else {
 				NEXT;
 				*ret = token(T_DOT, ".", _file, _line, _column - 1);
