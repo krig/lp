@@ -132,6 +132,11 @@ token* lexer_state::next_token()
 			NEXT;
 			return ret;
 		}
+		if (ch == ',') {
+			ret = new token(T_COMMA, ",", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
 
 		if (ch == '"') {
 			return read_string(ch);
