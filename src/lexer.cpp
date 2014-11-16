@@ -8,6 +8,8 @@ const char* token_name[] = {
 #undef TOKEN
 };
 
+lexer_state::lexer_state() {
+}
 
 void lexer_state::init(const char* filename)
 {
@@ -53,7 +55,7 @@ namespace {
 token* lexer_state::next_token()
 {
 	int ch;
-	token* ret;
+	token* ret = &_token;
 
 	while (_offset < _text.size()) {
 		ch = _text[_offset];
@@ -77,45 +79,55 @@ token* lexer_state::next_token()
 		if (ch == ':') {
 			NEXT;
 			if (ch == ':') {
-				ret = new token(T_DOUBLE_COLON, "::", _file, _line, _column-1);
+				*ret = token(T_DOUBLE_COLON, "::", _file, _line, _column-1);
 				NEXT;
 				return ret;
 			} else if (ch == '=') {
-				ret = new token(T_COLON_ASSIGN, ":=", _file, _line, _column-1);
+				*ret = token(T_COLON_ASSIGN, ":=", _file, _line, _column-1);
 				NEXT;
 				return ret;
 			} else {
-				ret = new token(T_COLON, ":", _file, _line, _column-1);
+				*ret = token(T_COLON, ":", _file, _line, _column-1);
 				return ret;
 			}
 		}
 		if (ch == '{') {
-			ret = new token(T_LBRACE, "{", _file, _line, _column);
+			*ret = token(T_LBRACE, "{", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == '}') {
-			ret = new token(T_RBRACE, "}", _file, _line, _column);
+			*ret = token(T_RBRACE, "}", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == '(') {
-			ret = new token(T_LPAREN, "(", _file, _line, _column);
+			*ret = token(T_LPAREN, "(", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == ')') {
-			ret = new token(T_RPAREN, ")", _file, _line, _column);
+			*ret = token(T_RPAREN, ")", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
+		if (ch == '[') {
+			*ret = token(T_LBRACKET, "[", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
+		if (ch == ']') {
+			*ret = token(T_RBRACKET, "]", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == ';') {
-			ret = new token(T_SEMICOLON, ";", _file, _line, _column);
+			*ret = token(T_SEMICOLON, ";", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == '+') {
-			ret = new token(T_PLUS, "+", _file, _line, _column);
+			*ret = token(T_PLUS, "+", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
@@ -123,30 +135,75 @@ token* lexer_state::next_token()
 			NEXT;
 			if (ch == '>') {
 				NEXT;
-				ret = new token(T_ARROW, "->", _file, _line, _column-2);
+				*ret = token(T_ARROW, "->", _file, _line, _column-2);
 			} else {
-				ret = new token(T_MINUS, "-", _file, _line, _column-1);
+				*ret = token(T_MINUS, "-", _file, _line, _column-1);
 			}
 			return ret;
 		}
 		if (ch == '*') {
-			ret = new token(T_MUL, "*", _file, _line, _column);
+			*ret = token(T_MUL, "*", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == '/') {
-			ret = new token(T_DIV, "/", _file, _line, _column);
+			*ret = token(T_DIV, "/", _file, _line, _column);
 			NEXT;
 			return ret;
 		}
 		if (ch == '=') {
-			ret = new token(T_ASSIGN, "=", _file, _line, _column);
 			NEXT;
+			if (ch == '=') {
+				NEXT;
+				*ret = token(T_EQUALS, "=", _file, _line, _column-2);
+			} else {
+				*ret = token(T_ASSIGN, "=", _file, _line, _column-1);
+			}
 			return ret;
 		}
 		if (ch == ',') {
-			ret = new token(T_COMMA, ",", _file, _line, _column);
+			*ret = token(T_COMMA, ",", _file, _line, _column);
 			NEXT;
+			return ret;
+		}
+		if (ch == '!') {
+			NEXT;
+			if (ch == '=') {
+				NEXT;
+				*ret = token(T_NOT_EQUALS, "!=", _file, _line, _column-2);
+			} else {
+				*ret = token(T_EXCLAMATION, "!", _file, _line, _column-1);
+			}
+			return ret;
+		}
+		if (ch == '?') {
+			*ret = token(T_QUESTION, "?", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
+		if (ch == '@') {
+			*ret = token(T_AT, "@", _file, _line, _column);
+			NEXT;
+			return ret;
+		}
+		if (ch == '&') {
+			NEXT;
+			if (ch == '&') {
+				NEXT;
+				*ret = token(T_DOUBLE_AND, "&&", _file, _line, _column-2);
+			} else {
+				*ret = token(T_AND, "&", _file, _line, _column-1);
+			}
+			return ret;
+		}
+		if (ch == '|') {
+			NEXT;
+			if (ch == '&') {
+				NEXT;
+				*ret = token(T_DOUBLE_OR, "||", _file, _line, _column-2);
+			} else {
+				*ret = token(T_VERTICAL_BAR, "|", _file, _line, _column);
+			}
 			return ret;
 		}
 
@@ -160,10 +217,10 @@ token* lexer_state::next_token()
 			} else if (PEEK == '.') {
 				NEXT;
 				NEXT;
-				ret = new token(T_DOTDOT, "..", _file, _line, _column - 2);
+				*ret = token(T_DOTDOT, "..", _file, _line, _column - 2);
 			} else {
 				NEXT;
-				ret = new token(T_DOT, ".", _file, _line, _column - 1);
+				*ret = token(T_DOT, ".", _file, _line, _column - 1);
 			}
 			return ret;
 		}
@@ -196,29 +253,25 @@ token* lexer_state::read_string(int ch)
 			case '\\':
 			case '"':
 				text += ch;
-				NEXT;
-				continue;
+				break;
 			case 'n':
 				text += '\n';
-				NEXT;
-				continue;
+				break;
 			case 'r':
 				text += '\r';
-				NEXT;
-				continue;
+				break;
 			case 'b':
 				text += '\b';
-				NEXT;
-				continue;
+				break;
 			case 't':
 				text += '\t';
-				NEXT;
-				continue;
+				break;
 			default:
 				LOG_WARN("Unknown escape sequence in string");
-				NEXT;
-				continue;
+				break;
 			}
+			NEXT;
+			continue;
 		}
 		if (ch == '\n') {
 			LOG_ERROR("err, newline in string");
@@ -228,7 +281,8 @@ token* lexer_state::read_string(int ch)
 		NEXT;
 	}
 	NEXT; // skip "
-	return new token(T_STRING, text, _file, _line, start_col);
+	_token = token(T_STRING, text, _file, _line, start_col);
+	return &_token;
 }
 
 token* lexer_state::read_ident(int ch)
@@ -251,9 +305,10 @@ token* lexer_state::read_ident(int ch)
 	NEXT;
 	buf[n] = '\0';
 	if (keywords.find(buf) != keywords.end())
-		return new token(T_KEYWORD, buf, _file, _line, _column - n);
+		_token = token(T_KEYWORD, buf, _file, _line, _column - n);
 	else
-		return new token(T_IDENTIFIER, buf, _file, _line, _column - n);
+		_token = token(T_IDENTIFIER, buf, _file, _line, _column - n);
+	return &_token;
 }
 
 token* lexer_state::read_number(int ch)
@@ -273,8 +328,9 @@ token* lexer_state::read_number(int ch)
 	buf[n] = '\0';
 
 	if (strchr(buf, '.')) {
-		return new token(T_FLOAT, buf, _file, _line, _column - n);
+		_token = token(T_FLOAT, buf, _file, _line, _column - n);
 	} else {
-		return new token(T_INT, buf, _file, _line, _column - n);
+		_token = token(T_INT, buf, _file, _line, _column - n);
 	}
+	return &_token;
 }

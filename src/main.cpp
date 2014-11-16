@@ -20,7 +20,6 @@ int main(int argc, char* argv[]) {
 	while ((t = state.next_token()) != nullptr) {
 		string desc = t->to_str();
 		LOG_INFO("%s", desc.c_str());
-		delete t;
 	}
 
 	return 0;
