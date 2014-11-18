@@ -1,32 +1,7 @@
 #include "common.hpp"
+#include "lexer.hpp"
 #include "parser.hpp"
 #include "module.hpp"
-
-// term stack
-// operator stack
-// handle precedence by pushing / popping the term stack
-// so to read the expression 1 + 2 * 5
-// push 1 -> terms
-// + higher precedence than nil
-// push + -> ops
-// push 2 -> terms
-// * higher precedence than +
-// push 5 -> terms
-// end of expression
-// pop *, 5, 2, push (* 2 5) to terms
-// pop +, (* 5 2), 1, push (+ 1 (* 2 5)) to terms
-//
-// 1 * 2 + 5
-// push 1 -> terms
-// * higher precedence than nil
-// push * -> ops
-// push 2 -> terms
-// + lower precedence than *
-// pop *, 2, 1, push (* 1 2) to terms
-// push +
-// push 5
-// end of expression
-// pop +, 5, (* 1 2), push (+ (* 1 2) 5)
 
 void parser_state::init(lexer_state *mainfile)
 {
@@ -35,6 +10,23 @@ void parser_state::init(lexer_state *mainfile)
 
 module *parser_state::parse()
 {
-	
+	token t = _mainfile->next_token();
+	switch (t._type) {
+	case T_IDENTIFIER: {
+		token op = _mainfile->next_token();
+		if (op._type == T_DOUBLE_COLON) {
+			// immutable definition
+		} else if (op._type == T_COLON_ASSIGN) {
+			// mutable definition
+		} else if (op._type == T_COLON) {
+			// typed mutable definition
+		}
+	} break;
+	default: {
+		string ts = t.to_str();
+		LOG_ERROR("Unexpected token: %s", ts.c_str());
+		return nullptr;
+	};
+	}
 	return nullptr;
 }

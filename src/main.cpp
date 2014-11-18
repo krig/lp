@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	token* t;
+	token t;
 	lexer_state lex;
 	lex.init(infile);
 
@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
 	compile(m);
 
 	#if 0
-	while ((t = lex.next_token()) != nullptr) {
-		string desc = t->to_str();
+	while ((t = lex.next_token())._type != T_EOF) {
+		string desc = t.to_str();
 		LOG_INFO("%s", desc.c_str());
 	}
 	#endif

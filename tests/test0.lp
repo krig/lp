@@ -1,5 +1,9 @@
 # this is a comment
 
+#use core;
+#use io;
+#use "foo.lp";
+
 foo :: (a: int, b: int) -> int {
     return a + b;
 }

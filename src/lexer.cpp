@@ -52,7 +52,16 @@ namespace {
 	}
 }
 
-token* lexer_state::next_token()
+token lexer_state::next_token()
+{
+	token *t = next_token_impl();
+	if (t != nullptr)
+		return std::move(*t);
+	token eof(T_EOF, "", _file, _line, _column);
+	return std::move(eof);
+}
+
+token* lexer_state::next_token_impl()
 {
 	int ch;
 	token* ret = &_token;

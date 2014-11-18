@@ -4,7 +4,8 @@
 
 
 #define TOKENS					\
-	TOKEN(KEYWORD),				\
+	TOKEN(EOF),				\
+		TOKEN(KEYWORD),			\
 		TOKEN(IDENTIFIER),		\
 		TOKEN(INT),			\
 		TOKEN(FLOAT),			\
@@ -54,6 +55,7 @@ struct token {
 		: _type(type), _text(text), _file(file), _line(line), _column(column) {}
 	token(const token& token) : _type(token._type), _text(token._text), _file(token._file),
 				    _line(token._line), _column(token._column) {}
+
 	token& operator=(const token& token) {
 		if (&token == this)
 			return *this;
@@ -87,7 +89,8 @@ struct token {
 struct lexer_state {
 	lexer_state();
 	void init(const char* filename);
-	token* next_token();
+	token next_token();
+	token* next_token_impl();
 	token* read_string(int ch);
 	token* read_ident(int ch);
 	token* read_number(int ch);
