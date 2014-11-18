@@ -1,5 +1,6 @@
 #include "common.hpp"
-
+#include "parser.hpp"
+#include "module.hpp"
 
 // term stack
 // operator stack
@@ -27,3 +28,13 @@
 // end of expression
 // pop +, 5, (* 1 2), push (+ (* 1 2) 5)
 
+void parser_state::init(lexer_state *mainfile)
+{
+	_mainfile = mainfile;
+}
+
+module *parser_state::parse()
+{
+	
+	return nullptr;
+}

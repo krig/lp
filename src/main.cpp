@@ -1,6 +1,9 @@
 #include "common.hpp"
 #include "os.hpp"
 #include "lexer.hpp"
+#include "parser.hpp"
+#include "compile.hpp"
+#include "module.hpp"
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -15,12 +18,22 @@ int main(int argc, char* argv[]) {
 	}
 
 	token* t;
-	lexer_state state;
-	state.init(infile);
-	while ((t = state.next_token()) != nullptr) {
+	lexer_state lex;
+	lex.init(infile);
+
+	parser_state parse;
+	parse.init(&lex);
+
+	module* m = parse.parse();
+
+	compile(m);
+
+	#if 0
+	while ((t = lex.next_token()) != nullptr) {
 		string desc = t->to_str();
 		LOG_INFO("%s", desc.c_str());
 	}
+	#endif
 
 	return 0;
 }
