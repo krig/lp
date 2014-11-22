@@ -26,7 +26,9 @@ int main(int argc, char* argv[]) {
 
 	module* m = parse.parse();
 
-	compile(m);
+	string outfile = os::path::replace_extension(infile, ".cpp");
+
+	compile(outfile.c_str(), m);
 
 	#if 0
 	while ((t = lex.next_token())._type != T_EOF) {

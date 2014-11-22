@@ -12,14 +12,14 @@ fi
 configure_debug() {
 	mkdir -p debug
 	cd debug
-	cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
 	cd ..
 }
 
 configure_release() {
 	mkdir -p release
 	cd release
-	cmake -DCMAKE_BUILD_TYPE=Release -G Ninja ..
+	cmake -DCMAKE_BUILD_TYPE=Release ..
 	cd ..
 }
 
@@ -34,9 +34,9 @@ if [ "$1x" == "cleanx" ]; then
 	[[ ! -d debug ]] && configure_debug
 	[[ ! -d release ]] && configure_release
 	cd debug
-	ninja clean
+	make clean
 	cd ../release
-	ninja clean
+	make clean
 	cd ..
 	exit 0
 fi
@@ -44,14 +44,14 @@ fi
 build_debug() {
 	[[ ! -d debug ]] && configure_debug
 	cd debug
-	ninja "$@"
+	make "$@"
 	cd ..
 }
 
 build_release() {
 	[[ ! -d release ]] && configure_release
 	cd release
-	ninja "$@"
+	make "$@"
 	cd ..
 }
 

@@ -16,6 +16,8 @@ namespace os {
 		bool makedir(const char* dir);
 		bool makepath(const char* dir);
 
+		string replace_extension(const char* path, const char* ext);
+
 		inline const char* basename(const string& full_path) { return basename(full_path.c_str()); }
 		inline const char* extension(const string& full_path) { return extension(full_path.c_str()); }
 		inline string path(const string& full_path) { return path(full_path.c_str()); }

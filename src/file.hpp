@@ -92,6 +92,25 @@ struct file {
 	size_t write(const void* ptr, size_t sz, size_t nitems) {
 		return fwrite(ptr, sz, nitems, _file);
 	}
+
+	size_t print(const char* fmt, ...) {
+		va_list va_args;
+		va_start(va_args, fmt);
+		int ret = vfprintf(_file, fmt, va_args);
+		va_end(va_args);
+		return ret;
+	}
+
+	size_t println(const char* fmt, ...) {
+		va_list va_args;
+		va_start(va_args, fmt);
+		int ret = vfprintf(_file, fmt, va_args);
+		va_end(va_args);
+		if (ret < 0)
+			return ret;
+		puts("");
+		return ret + 1;
+	}
 };
 
 // read entire file into memory

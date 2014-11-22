@@ -27,12 +27,16 @@ namespace os {
 
 		const char* extension(const char* full_path) {
 			const char* dot = strrchr(full_path, '.');
-
-			if (dot && *(dot + 1))
-				return dot + 1;
-
-			return 0;
+			return dot ? dot : "";
 		}
+
+		string replace_extension(const char* path, const char* ext) {
+			const char* old_ext = extension(path);
+			string ret(path, path + strlen(path) - strlen(old_ext));
+			ret += ext;
+			return ret;
+		}
+
 
 		string path(const char* full_path) {
 			if (isdir(full_path))

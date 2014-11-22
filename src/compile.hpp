@@ -2,4 +2,4 @@
 
 struct module;
 
-void compile(module *m);
+void compile(const string& outfile, module *m);
