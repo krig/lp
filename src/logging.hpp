@@ -24,6 +24,7 @@
 		void set_log_level(LogLevels level);
 
 		void cprintf(int color, const char* fmt, ...) UTIL_CHECK_PRINTF(2, 3);
+		void cfprintf(FILE *f, int color, const char* fmt, ...) UTIL_CHECK_PRINTF(3, 4);
 
 		struct log_context {
 			log_context(const char* fil, int lin, const char* fun);

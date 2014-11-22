@@ -63,3 +63,10 @@ inline void delete_all(I begin, I end) {
 
 #include "strfmt.hpp"
 #include "logging.hpp"
+
+
+#define ASSERT3(x, msg, file, line) \
+        throw error("%s(%d) Assert [" #x "] %s", file, line, msg)
+
+#define ASSERT(x) do { if (!(x)) { ASSERT3(x, "", __FILE__, __LINE__); } } while (0)
+#define ASSERT2(x, msg) do { if (!(x)) { ASSERT3(x, msg, __FILE__, __LINE__); } } while (0)

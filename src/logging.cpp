@@ -372,5 +372,24 @@ namespace logging {
 		else
 			printf("%s", tmp);
 	}
+
+	void cfprintf(FILE *f, int color, const char* fmt, ...) {
+		char tmp[2048];
+		va_list va_args;
+		va_start(va_args, fmt);
+		vsnprintf(tmp, sizeof(tmp), fmt, va_args);
+		va_end(va_args);
+
+		if (colors) {
+			size_t len = strlen(tmp);
+			bool nl = (tmp[len-1] == '\n');
+			if (nl)
+				tmp[len-1] = '\0';
+			fprintf(f, "\e[%dm%s\e[0m%s", color, tmp, nl?"\n":"");
+		}
+		else
+			fprintf(f, "%s", tmp);
+	}
+
 }
 
