@@ -106,9 +106,11 @@ struct file {
 		va_start(va_args, fmt);
 		int ret = vfprintf(_file, fmt, va_args);
 		va_end(va_args);
-		if (ret < 0)
+		if (ret < 0) {
+			printf("%d!\n", ret);
 			return ret;
-		puts("");
+		}
+		fputs("\n", _file);
 		return ret + 1;
 	}
 };

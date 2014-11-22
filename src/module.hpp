@@ -4,6 +4,7 @@ struct module {
 	explicit module(const char* module_id);
 
 	string _id;
+	string _file;
 	vector<string> _use;
 };
 

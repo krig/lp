@@ -10,6 +10,8 @@ void parser_state::init(lexer_state *mainfile)
 
 module *parser_state::parse()
 {
+	module* m = new module("main");
+	m->_file = _mainfile->_file;
 	token t = _mainfile->next_token();
 	switch (t._type) {
 	case T_IDENTIFIER: {
@@ -28,5 +30,5 @@ module *parser_state::parse()
 		return nullptr;
 	};
 	}
-	return nullptr;
+	return m;
 }

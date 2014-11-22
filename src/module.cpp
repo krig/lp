@@ -11,6 +11,6 @@ module *get(module_registry *r, const char *module_id)
 	return ret;
 }
 
-module::module(const char *module_id) : _id(module_id)
+module::module(const char *module_id) : _id(module_id), _file(module_id)
 {
 }
