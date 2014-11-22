@@ -4,6 +4,7 @@
 #include "parser.hpp"
 #include "compile.hpp"
 #include "module.hpp"
+#include "options.hpp"
 
 void compiler_main(const char* infile, const char* outfile) {
 	ASSERT2(strcmp(infile, outfile) != 0, "This just isn't a good idea");
@@ -28,18 +29,26 @@ void compiler_main(const char* infile, const char* outfile) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc < 2) {
-		LOG_ERROR("Expected <file>");
+	optionparser parser;
+	parser("compile").doc("compile");
+	parser("compile").add_opt("o", "out-file", option::Value);
+	parser("compile").add_arg("in-file");
+	if (!parser.parse("compile", argc-1, argv+1)) {
 		return 1;
 	}
 
-	const char* infile = argv[argc-1];
+	const char* infile = parser("compile").arg(0).value().c_str();
 	if (!os::path::exists(infile)) {
 		LOG_ERROR("File not found: %s", infile);
 		return 1;
 	}
 
-	string outfile = os::path::replace_extension(infile, ".cpp");
+	string outfile;
+	if (parser("compile")["out-file"].flag()) {
+		outfile = parser("compile")["out-file"].value();
+	} else {
+		outfile = os::path::replace_extension(infile, ".cpp");
+	}
 
 	try {
 		compiler_main(infile, outfile.c_str());
