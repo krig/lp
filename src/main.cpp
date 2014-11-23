@@ -19,18 +19,12 @@ void compiler_main(const char* infile, const char* outfile) {
 	module* m = parse.parse();
 
 	compile(outfile, m);
-
-	#if 0
-	while ((t = lex.next_token())._type != T_EOF) {
-		string desc = t.to_str();
-		LOG_INFO("%s", desc.c_str());
-	}
-	#endif
 }
 
 int main(int argc, char* argv[]) {
 	optionparser parser;
 	parser("compile").doc("compile");
+	parser("compile").add_opt("l", "test-lexer", option::Flag);
 	parser("compile").add_opt("o", "out-file", option::Value);
 	parser("compile").add_arg("in-file");
 	if (!parser.parse("compile", argc-1, argv+1)) {
@@ -51,7 +45,17 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
-		compiler_main(infile, outfile.c_str());
+		if (parser("compile")["test-lexer"].flag()) {
+			token t;
+			lexer_state lex;
+			lex.init(infile);
+			while ((t = lex.next_token())._type != T_EOF) {
+				string desc = t.to_str();
+				LOG_INFO("%s", desc.c_str());
+			}
+		} else {
+			compiler_main(infile, outfile.c_str());
+		}
 	} catch (const error& e) {
 		logging::cfprintf(stderr, logging::RED, "%s\n", e.what());
 		return 1;

@@ -6,6 +6,6 @@ include(FindPkgConfig)
 find_package(Threads)
 include_directories("src")
 set(sources src/file.cpp src/hash.cpp src/lexer.cpp src/logging.cpp src/main.cpp src/os.cpp src/parser.cpp src/sha1.cpp src/siphash.c
-            src/compile.cpp src/module.cpp)
+            src/compile.cpp src/module.cpp src/u8.cpp)
 add_executable(lp ${sources})
 target_link_libraries(lp m ${CMAKE_THREAD_LIBS_INIT})

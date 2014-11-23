@@ -1,6 +1,7 @@
 #pragma once
 
 #include "strfmt.hpp"
+#include <deque>
 
 
 #define TOKENS					\
@@ -86,6 +87,25 @@ struct token {
 };
 
 
+struct u8_stream {
+	u8_stream();
+	int get();
+	int peek();
+	int advance();
+	bool eof() const;
+	void read_file(const char* filename);
+
+	string _text;
+	int _offset;
+	int _line;
+	int _column;
+
+	int _curr;
+	int _peek;
+	std::deque<int> _unget;
+};
+
+
 struct lexer_state {
 	lexer_state();
 	void init(const char* filename);
@@ -95,11 +115,8 @@ struct lexer_state {
 	token* read_ident(int ch);
 	token* read_number(int ch);
 
-	string _text;
 	const char* _file;
-	int _offset;
-	int _line;
-	int _column;
+	u8_stream _stream;
 	token _token;
 };
 

@@ -4,6 +4,7 @@ using std::string;
 using std::stringstream;
 typedef std::vector<string> stringvec;
 
+/*
 inline
 stringvec split(const string& s, const string& sep = " ") {
 	stringvec ret;
@@ -15,6 +16,7 @@ stringvec split(const string& s, const string& sep = " ") {
 		ret.push_back(token);
 	return ret;
 }
+*/
 
 inline
 bool endswith(const string& s, const char* end) {

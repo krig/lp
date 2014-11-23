@@ -1,4 +1,5 @@
 # this is a comment
+# this is önicyde cämment.
 
 #use core;
 #use io;
@@ -18,7 +19,7 @@ main :: () {
     a := 3;
     b := 4.5; # another comment
     c : float = b + b * 9;
-    d := "this is a \"string";
+    d := "this is a \"string Τη γλώσσα μου έδωσαν ελληνική";
     c = b / (a + 100.f);
-    return 0;
+    return böööФ;
 }
