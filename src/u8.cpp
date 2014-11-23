@@ -2,6 +2,8 @@
 #include "u8.hpp"
 #include "stringutil.hpp"
 
+rune_t invalid_rune = (rune_t)-1;
+
 /* returns a unicode character or EOF
    doesn't handle more than 4-byte sequences
    Valid utf-8 sequences look like this :
@@ -12,7 +14,7 @@
    111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
    1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
  */
-int u8_getc(u8_getc_fn get, u8_ungetc_fn unget, void *ud) {
+rune_t u8_getc(u8_getc_fn get, u8_ungetc_fn unget, void *ud) {
 	int c[4];
 	c[0] = get(ud);
 	if (c[0] < 0x80) return c[0];
@@ -47,45 +49,75 @@ error1: unget(c[1], ud);
 error: return '?';
 }
 
-int u8_append(char* buf, int ch, int len)
+int u8_append(char* buf, rune_t ch, int len)
 {
-	char tmp[5] = {0};
+	uint8_t tmp[7] = {0};
 	if (ch < 0x80) {
-		tmp[0] = (uint8_t)(ch);
+		tmp[0] = ch;
 	} else if (ch < 0x800) {
-		tmp[0] = (uint8_t)((ch >> 6) | 0xc0);
-		tmp[1] = (uint8_t)((ch & 0x3f) | 0x80);
+		tmp[0] = 0xc0 | (ch >> 6);
+		tmp[1] = 0x80 | (ch & 0x3f);
 	} else if (ch < 0x10000) {
-		tmp[0] = (uint8_t)((ch >> 12) | 0xe0);
-		tmp[1] = (uint8_t)(((ch >> 6) & 0x3f) | 0x80);
-		tmp[2] = (uint8_t)((ch & 0x3f) | 0x80);
+		tmp[0] = 0xe0 | (ch >> 12);
+		tmp[1] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[2] = 0x80 | (ch & 0x3f);
+	} else if (ch < 0x200000) {
+		tmp[0] = 0xf0 | (ch >> 18);
+		tmp[1] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[3] = 0x80 | (ch & 0x3f);
+	} else if (ch < 0x4000000) {
+		tmp[0] = 0xf8 | (ch >> 24);
+		tmp[1] = 0x80 | ((ch >> 18) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[3] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[4] = 0x80 | ((ch >> 0) & 0x3f);
+	} else if (ch < 0x80000000) {
+		tmp[0] = 0xfc | (ch >> 30);
+		tmp[1] = 0x80 | ((ch >> 24) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 18) & 0x3f);
+		tmp[3] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[4] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[5] = 0x80 | ((ch >> 0) & 0x3f);
 	} else {
-		tmp[0] = (uint8_t)((ch >> 18) | 0xf0);
-		tmp[1] = (uint8_t)(((ch >> 12) & 0x3f) | 0x80);
-		tmp[2] = (uint8_t)(((ch >> 6) & 0x3f) | 0x80);
-		tmp[3] = (uint8_t)((ch & 0x3f) | 0x80);
+		// invalid rune, don't append
 	}
-	return strmcat(buf, tmp, len);
+	return strmcat(buf, (char*)tmp, len);
 }
 
-int u8_append(string& buf, int ch)
+int u8_append(string& buf, rune_t ch)
 {
-	char tmp[5] = {0};
+	uint8_t tmp[7] = {0};
 	if (ch < 0x80) {
-		tmp[0] = (uint8_t)(ch);
+		tmp[0] = ch;
 	} else if (ch < 0x800) {
-		tmp[0] = (uint8_t)((ch >> 6) | 0xc0);
-		tmp[1] = (uint8_t)((ch & 0x3f) | 0x80);
+		tmp[0] = 0xc0 | (ch >> 6);
+		tmp[1] = 0x80 | (ch & 0x3f);
 	} else if (ch < 0x10000) {
-		tmp[0] = (uint8_t)((ch >> 12) | 0xe0);
-		tmp[1] = (uint8_t)(((ch >> 6) & 0x3f) | 0x80);
-		tmp[2] = (uint8_t)((ch & 0x3f) | 0x80);
+		tmp[0] = 0xe0 | (ch >> 12);
+		tmp[1] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[2] = 0x80 | (ch & 0x3f);
+	} else if (ch < 0x200000) {
+		tmp[0] = 0xf0 | (ch >> 18);
+		tmp[1] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[3] = 0x80 | (ch & 0x3f);
+	} else if (ch < 0x4000000) {
+		tmp[0] = 0xf8 | (ch >> 24);
+		tmp[1] = 0x80 | ((ch >> 18) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[3] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[4] = 0x80 | ((ch >> 0) & 0x3f);
+	} else if (ch < 0x80000000) {
+		tmp[0] = 0xfc | (ch >> 30);
+		tmp[1] = 0x80 | ((ch >> 24) & 0x3f);
+		tmp[2] = 0x80 | ((ch >> 18) & 0x3f);
+		tmp[3] = 0x80 | ((ch >> 12) & 0x3f);
+		tmp[4] = 0x80 | ((ch >> 6) & 0x3f);
+		tmp[5] = 0x80 | ((ch >> 0) & 0x3f);
 	} else {
-		tmp[0] = (uint8_t)((ch >> 18) | 0xf0);
-		tmp[1] = (uint8_t)(((ch >> 12) & 0x3f) | 0x80);
-		tmp[2] = (uint8_t)(((ch >> 6) & 0x3f) | 0x80);
-		tmp[3] = (uint8_t)((ch & 0x3f) | 0x80);
+		// invalid rune, don't append
 	}
-	buf += tmp;
+	buf += (char*)tmp;
 	return buf.length();
 }

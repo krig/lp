@@ -50,6 +50,8 @@ enum Token {
 
 extern const char* token_name[];
 
+typedef uint32_t rune_t;
+
 struct token {
 	token() {}
 	token(Token type, string text, const char* file, int line, int column)
@@ -89,9 +91,9 @@ struct token {
 
 struct u8_stream {
 	u8_stream();
-	int get();
-	int peek();
-	int advance();
+	rune_t get();
+	rune_t peek();
+	rune_t advance();
 	bool eof() const;
 	void read_file(const char* filename);
 
@@ -100,8 +102,9 @@ struct u8_stream {
 	int _line;
 	int _column;
 
-	int _curr;
-	int _peek;
+	rune_t _curr;
+	rune_t _peek;
+	int _peek_offs;
 	std::deque<int> _unget;
 };
 

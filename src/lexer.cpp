@@ -33,15 +33,15 @@ namespace {
 		"case"
 	};
 
-	inline bool isident0(int ch) {
+	inline bool isident0(rune_t ch) {
 		return isalpha(ch) || ch == '_' || ch > 127;
 	}
 
-	inline bool isidentn(int ch) {
+	inline bool isidentn(rune_t ch) {
 		return isalnum(ch) || ch == '_' || ch > 127;
 	}
 
-	inline bool isnumeric(int ch) {
+	inline bool isnumeric(rune_t ch) {
 		return isdigit(ch) || ch == '_' || ch == '.' || ch == 'u' || ch == 'f' || ch == 'l';
 	}
 
@@ -71,40 +71,44 @@ u8_stream::u8_stream() :
 	_offset(0),
 	_line(1),
 	_column(0),
-	_curr(-1),
-	_peek(-1),
+	_curr(invalid_rune),
+	_peek(invalid_rune),
+	_peek_offs(0),
 	_unget() {
 }
 
-int u8_stream::get() {
-	if (_curr < 0)
+rune_t u8_stream::get() {
+	if (_curr == invalid_rune)
 		advance();
 	return _curr;
 }
 
-int u8_stream::peek() {
-	if (_peek < 0)
+rune_t u8_stream::peek() {
+	if (_peek == invalid_rune) {
+		int offs = _offset;
 		_peek = u8_getc(_u8_getter, _u8_ungetter, this);
+		_peek_offs = _offset - offs;
+	}
 	return _peek;
 }
 
-int u8_stream::advance() {
-	int _prev = _curr;
-	int _offs = _offset;
-	if (_peek > -1) {
+rune_t u8_stream::advance() {
+	int prev = _curr;
+	int offs = _offset;
+	if (_peek != invalid_rune) {
 		_curr = _peek;
-		_peek = -1;
-	} else if (_curr < 0) {
-		_curr = u8_getc(_u8_getter, _u8_ungetter, this);
+		_peek = invalid_rune;
+		offs = _peek_offs;
 	} else {
 		_curr = u8_getc(_u8_getter, _u8_ungetter, this);
+		offs = _offset - offs;
 	}
-	if (_offset - _offs > 0) {
-		if (_prev == '\n') {
+	if (offs > 0) {
+		if (prev == '\n') {
 			_line++;
 			_column = 0;
 		} else {
-			_column += _offset - _offs;
+			_column += 1;
 		}
 	}
 	return _curr;
@@ -339,6 +343,7 @@ token* lexer_state::read_string(int ch)
 		return nullptr;
 	}
 
+	int start_line = _stream._line;
 	int start_col = _stream._column;
 
 	string text;
@@ -378,7 +383,7 @@ token* lexer_state::read_string(int ch)
 		ch = _stream.advance();
 	}
 	ch = _stream.advance(); // skip "
-	_token = token(T_STRING, text, _file, _stream._line, start_col);
+	_token = token(T_STRING, text, _file, start_line, start_col);
 	return &_token;
 }
 
@@ -386,6 +391,8 @@ token* lexer_state::read_ident(int ch)
 {
 	char buf[1024];
 	int ap = 0;
+	int start_line = _stream._line;
+	int start_col = _stream._column;
 	if (!isident0(ch)) {
 		LOG_ERROR("Unexpected '%c' (%d)", ch, ch);
 		return nullptr;
@@ -403,9 +410,9 @@ token* lexer_state::read_ident(int ch)
 	ch = _stream.advance();
 	buf[ap] = '\0';
 	if (keywords.find(buf) != keywords.end())
-		_token = token(T_KEYWORD, buf, _file, _stream._line, _stream._column - ap);
+		_token = token(T_KEYWORD, buf, _file, start_line, start_col);
 	else
-		_token = token(T_IDENTIFIER, buf, _file, _stream._line, _stream._column - ap);
+		_token = token(T_IDENTIFIER, buf, _file, start_line, start_col);
 	return &_token;
 }
 
@@ -413,6 +420,8 @@ token* lexer_state::read_number(int ch)
 {
 	char buf[512];
 	int n = 1;
+	int start_line = _stream._line;
+	int start_col = _stream._column;
 	buf[0] = ch;
 	while (isnumeric(_stream.peek())) {
 		ch = _stream.advance();
@@ -426,9 +435,9 @@ token* lexer_state::read_number(int ch)
 	buf[n] = '\0';
 
 	if (strchr(buf, '.')) {
-		_token = token(T_FLOAT, buf, _file, _stream._line, _stream._column - n);
+		_token = token(T_FLOAT, buf, _file, start_line, start_col);
 	} else {
-		_token = token(T_INT, buf, _file, _stream._line, _stream._column - n);
+		_token = token(T_INT, buf, _file, start_line, start_col);
 	}
 	return &_token;
 }
