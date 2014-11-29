@@ -2,6 +2,7 @@
 #include "file.hpp"
 #include "lexer.hpp"
 #include "u8.hpp"
+#include "intern.hpp"
 
 const char* token_name[] = {
 #define TOKEN(t) #t
@@ -13,7 +14,7 @@ lexer_state::lexer_state() {
 }
 
 namespace {
-	set<string> keywords {
+	set<const char*> keywords {
 		"def",
 		"return",
 		"if",
@@ -142,7 +143,7 @@ token lexer_state::next_token()
 	token *t = next_token_impl();
 	if (t != nullptr)
 		return std::move(*t);
-	token eof(T_EOF, "", _file, _stream._line, _stream._column);
+	token eof(T_EOF, intern_string("", false), _file, _stream._line, _stream._column);
 	return std::move(eof);
 }
 
@@ -175,55 +176,55 @@ token* lexer_state::next_token_impl()
 		if (ch == ':') {
 			ch = _stream.advance();
 			if (ch == ':') {
-				*ret = token(T_DOUBLE_COLON, "::", _file, _stream._line, _stream._column-1);
+				*ret = token(T_DOUBLE_COLON, intern_string("::", false), _file, _stream._line, _stream._column-1);
 				ch = _stream.advance();
 				return ret;
 			} else if (ch == '=') {
-				*ret = token(T_COLON_ASSIGN, ":=", _file, _stream._line, _stream._column-1);
+				*ret = token(T_COLON_ASSIGN, intern_string(":=", false), _file, _stream._line, _stream._column-1);
 				ch = _stream.advance();
 				return ret;
 			} else {
-				*ret = token(T_COLON, ":", _file, _stream._line, _stream._column-1);
+				*ret = token(T_COLON, intern_string(":", false), _file, _stream._line, _stream._column-1);
 				return ret;
 			}
 		}
 		if (ch == '{') {
-			*ret = token(T_LBRACE, "{", _file, _stream._line, _stream._column);
+			*ret = token(T_LBRACE, intern_string("{", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '}') {
-			*ret = token(T_RBRACE, "}", _file, _stream._line, _stream._column);
+			*ret = token(T_RBRACE, intern_string("}", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '(') {
-			*ret = token(T_LPAREN, "(", _file, _stream._line, _stream._column);
+			*ret = token(T_LPAREN, intern_string("(", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == ')') {
-			*ret = token(T_RPAREN, ")", _file, _stream._line, _stream._column);
+			*ret = token(T_RPAREN, intern_string(")", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '[') {
-			*ret = token(T_LBRACKET, "[", _file, _stream._line, _stream._column);
+			*ret = token(T_LBRACKET, intern_string("[", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == ']') {
-			*ret = token(T_RBRACKET, "]", _file, _stream._line, _stream._column);
+			*ret = token(T_RBRACKET, intern_string("]", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == ';') {
-			*ret = token(T_SEMICOLON, ";", _file, _stream._line, _stream._column);
+			*ret = token(T_SEMICOLON, intern_string(";", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '+') {
-			*ret = token(T_PLUS, "+", _file, _stream._line, _stream._column);
+			*ret = token(T_PLUS, intern_string("+", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
@@ -231,19 +232,19 @@ token* lexer_state::next_token_impl()
 			ch = _stream.advance();
 			if (ch == '>') {
 				ch = _stream.advance();
-				*ret = token(T_ARROW, "->", _file, _stream._line, _stream._column-2);
+				*ret = token(T_ARROW, intern_string("->", false), _file, _stream._line, _stream._column-2);
 			} else {
-				*ret = token(T_MINUS, "-", _file, _stream._line, _stream._column-1);
+				*ret = token(T_MINUS, intern_string("-", false), _file, _stream._line, _stream._column-1);
 			}
 			return ret;
 		}
 		if (ch == '*') {
-			*ret = token(T_MUL, "*", _file, _stream._line, _stream._column);
+			*ret = token(T_MUL, intern_string("*", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '/') {
-			*ret = token(T_DIV, "/", _file, _stream._line, _stream._column);
+			*ret = token(T_DIV, intern_string("/", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
@@ -251,14 +252,14 @@ token* lexer_state::next_token_impl()
 			ch = _stream.advance();
 			if (ch == '=') {
 				ch = _stream.advance();
-				*ret = token(T_EQUALS, "=", _file, _stream._line, _stream._column-2);
+				*ret = token(T_EQUALS, intern_string("=", false), _file, _stream._line, _stream._column-2);
 			} else {
-				*ret = token(T_ASSIGN, "=", _file, _stream._line, _stream._column-1);
+				*ret = token(T_ASSIGN, intern_string("=", false), _file, _stream._line, _stream._column-1);
 			}
 			return ret;
 		}
 		if (ch == ',') {
-			*ret = token(T_COMMA, ",", _file, _stream._line, _stream._column);
+			*ret = token(T_COMMA, intern_string(",", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
@@ -266,19 +267,19 @@ token* lexer_state::next_token_impl()
 			ch = _stream.advance();
 			if (ch == '=') {
 				ch = _stream.advance();
-				*ret = token(T_NOT_EQUALS, "!=", _file, _stream._line, _stream._column-2);
+				*ret = token(T_NOT_EQUALS, intern_string("!=", false), _file, _stream._line, _stream._column-2);
 			} else {
-				*ret = token(T_EXCLAMATION, "!", _file, _stream._line, _stream._column-1);
+				*ret = token(T_EXCLAMATION, intern_string("!", false), _file, _stream._line, _stream._column-1);
 			}
 			return ret;
 		}
 		if (ch == '?') {
-			*ret = token(T_QUESTION, "?", _file, _stream._line, _stream._column);
+			*ret = token(T_QUESTION, intern_string("?", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
 		if (ch == '@') {
-			*ret = token(T_AT, "@", _file, _stream._line, _stream._column);
+			*ret = token(T_AT, intern_string("@", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
 			return ret;
 		}
@@ -286,9 +287,9 @@ token* lexer_state::next_token_impl()
 			ch = _stream.advance();
 			if (ch == '&') {
 				ch = _stream.advance();
-				*ret = token(T_DOUBLE_AND, "&&", _file, _stream._line, _stream._column-2);
+				*ret = token(T_DOUBLE_AND, intern_string("&&", false), _file, _stream._line, _stream._column-2);
 			} else {
-				*ret = token(T_AND, "&", _file, _stream._line, _stream._column-1);
+				*ret = token(T_AND, intern_string("&", false), _file, _stream._line, _stream._column-1);
 			}
 			return ret;
 		}
@@ -296,9 +297,9 @@ token* lexer_state::next_token_impl()
 			ch = _stream.advance();
 			if (ch == '&') {
 				ch = _stream.advance();
-				*ret = token(T_DOUBLE_OR, "||", _file, _stream._line, _stream._column-2);
+				*ret = token(T_DOUBLE_OR, intern_string("||", false), _file, _stream._line, _stream._column-2);
 			} else {
-				*ret = token(T_VERTICAL_BAR, "|", _file, _stream._line, _stream._column);
+				*ret = token(T_VERTICAL_BAR, intern_string("|", false), _file, _stream._line, _stream._column);
 			}
 			return ret;
 		}
@@ -315,14 +316,14 @@ token* lexer_state::next_token_impl()
 				if (_stream.peek() == '.') {
 					ch = _stream.advance();
 					ch = _stream.advance();
-					*ret = token(T_DOTDOTDOT, "...", _file, _stream._line, _stream._column - 2);
+					*ret = token(T_DOTDOTDOT, intern_string("...", false), _file, _stream._line, _stream._column - 2);
 				} else {
 					ch = _stream.advance();
-					*ret = token(T_DOTDOT, "..", _file, _stream._line, _stream._column - 2);
+					*ret = token(T_DOTDOT, intern_string("..", false), _file, _stream._line, _stream._column - 2);
 				}
 			} else {
 				ch = _stream.advance();
-				*ret = token(T_DOT, ".", _file, _stream._line, _stream._column - 1);
+				*ret = token(T_DOT, intern_string(".", false), _file, _stream._line, _stream._column - 1);
 			}
 			return ret;
 		}
@@ -384,7 +385,7 @@ token* lexer_state::read_string(int ch)
 		ch = _stream.advance();
 	}
 	ch = _stream.advance(); // skip "
-	_token = token(T_STRING, text, _file, start_line, start_col);
+	_token = token(T_STRING, intern_string(text.c_str(), true), _file, start_line, start_col);
 	return &_token;
 }
 
@@ -411,9 +412,9 @@ token* lexer_state::read_ident(int ch)
 	ch = _stream.advance();
 	buf[ap] = '\0';
 	if (keywords.find(buf) != keywords.end())
-		_token = token(T_KEYWORD, buf, _file, start_line, start_col);
+		_token = token(T_KEYWORD, intern_string(buf, true), _file, start_line, start_col);
 	else
-		_token = token(T_IDENTIFIER, buf, _file, start_line, start_col);
+		_token = token(T_IDENTIFIER, intern_string(buf, true), _file, start_line, start_col);
 	return &_token;
 }
 
@@ -436,9 +437,9 @@ token* lexer_state::read_number(int ch)
 	buf[n] = '\0';
 
 	if (strchr(buf, '.')) {
-		_token = token(T_FLOAT, buf, _file, start_line, start_col);
+		_token = token(T_FLOAT, intern_string(buf, true), _file, start_line, start_col);
 	} else {
-		_token = token(T_INT, buf, _file, start_line, start_col);
+		_token = token(T_INT, intern_string(buf, true), _file, start_line, start_col);
 	}
 	return &_token;
 }
