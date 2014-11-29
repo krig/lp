@@ -7,10 +7,11 @@ namespace {
 			if (copy)
 				this->str = strdup(str);
 		}
-		~interned_string() {
-			if (copy)
-				free((void*)str);
-		}
+		// TODO: uncomment this if I ever decide to enable uninterning strings
+		//~interned_string() {
+			//if (copy)
+			//	free((void*)str);
+		//}
 		const char* str;
 		bool copy;
 	};
