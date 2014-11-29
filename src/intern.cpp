@@ -3,15 +3,7 @@
 
 namespace {
 	struct interned_string {
-		interned_string(const char* str, bool copy) : str(str), copy(copy) {
-			if (copy)
-				this->str = strdup(str);
-		}
-		// TODO: uncomment this if I ever decide to enable uninterning strings
-		//~interned_string() {
-			//if (copy)
-			//	free((void*)str);
-		//}
+		interned_string(const char* str, bool copy) : str(copy ? strdup(str) : str), copy(copy) {}
 		const char* str;
 		bool copy;
 	};
@@ -20,7 +12,7 @@ namespace {
 		size_t operator()(const interned_string& str) const {
 			size_t h = 0;
 			for (size_t i = strlen(str.str); i != 0; --i)
-				h = 31 * h + str.str[i];
+				h = 31 * h + str.str[i-1];
 			return h;
 		}
 	};
