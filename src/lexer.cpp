@@ -14,27 +14,7 @@ lexer_state::lexer_state() {
 }
 
 namespace {
-	set<const char*> keywords {
-		"def",
-		"return",
-		"if",
-		"then",
-		"else",
-		"elif",
-		"for",
-		"match",
-		"use",
-		"struct",
-		"enum",
-		"union",
-		"sizeof",
-		"addressof",
-		"type",
-		"with",
-		"and",
-		"or",
-		"case"
-	};
+	set<const char*> keywords;
 
 	inline bool isident0(rune_t ch) {
 		return isalpha(ch) || ch == '_' || ch > 127;
@@ -134,6 +114,17 @@ void u8_stream::read_file(const char* filename)
 
 void lexer_state::init(const char* filename)
 {
+	if (keywords.size() == 0) {
+		static const char* kw[] = {
+			"def", "return", "if", "then", "else", "elif", "for",
+			"match", "use", "struct", "enum", "union", "sizeof",
+			"addressof", "type", "with", "and", "or", "case"
+		};
+		for (int i = 0; i < ASIZE(kw); ++i) {
+			keywords.insert(intern_string(kw[i], false));
+		}
+	}
+
 	_file = filename;
 	_stream.read_file(filename);
 }
@@ -463,10 +454,13 @@ token* lexer_state::read_ident(int ch)
 	}
 	ch = _stream.advance();
 	buf[ap] = '\0';
-	if (keywords.find(buf) != keywords.end())
-		_token = token(T_KEYWORD, intern_string(buf, true), _file, start_line, start_col);
+	if (strcmp(buf, "use") == 0)
+		LOG_INFO("use!");
+	const char* interned = intern_string(buf, true);
+	if (keywords.find(interned) != keywords.end())
+		_token = token(T_KEYWORD, interned, _file, start_line, start_col);
 	else
-		_token = token(T_IDENTIFIER, intern_string(buf, true), _file, start_line, start_col);
+		_token = token(T_IDENTIFIER, interned, _file, start_line, start_col);
 	return &_token;
 }
 

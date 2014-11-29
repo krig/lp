@@ -10,10 +10,18 @@ void parser_state::init(lexer_state *mainfile)
 
 module *parser_state::parse()
 {
+	printf("parsing...\n");
 	module* m = new module("main");
 	m->_file = _mainfile->_file;
 	token t = _mainfile->next_token();
+	{ string desc = t.to_str(); LOG_INFO("%s", desc.c_str()); }
 	switch (t._type) {
+	case T_KEYWORD: {
+		printf("keyword %s\n", t._text);
+		if (strcmp(t._text, "def") == 0) {
+			printf("def!\n");
+		}
+	} break;
 	case T_IDENTIFIER: {
 		token op = _mainfile->next_token();
 		if (op._type == T_DOUBLE_COLON) {

@@ -70,3 +70,5 @@ inline void delete_all(I begin, I end) {
 
 #define ASSERT(x) do { if (!(x)) { ASSERT3(x, "", __FILE__, __LINE__); } } while (0)
 #define ASSERT2(x, msg) do { if (!(x)) { ASSERT3(x, msg, __FILE__, __LINE__); } } while (0)
+
+extern "C" int crypto_auth( unsigned char *out, const unsigned char *in, unsigned long long inlen, const unsigned char *k );

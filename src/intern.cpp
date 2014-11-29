@@ -2,7 +2,23 @@
 #include "intern.hpp"
 
 namespace {
-	set<const char*> _interned;
+
+	struct hash_str {
+		size_t operator()(const char* str) const {
+			size_t h = 0;
+			for (size_t i = strlen(str); i != 0; --i)
+				h = 31 * h + str[i];
+			return h;
+		}
+	};
+
+	struct str_equal {
+		bool operator()(const char* a, const char* b) const {
+			return strcmp(a, b) == 0;
+		}
+	};
+
+	std::unordered_set<const char*, hash_str, str_equal> _interned;
 
 	const char* copy_string(const char* str)
 	{
