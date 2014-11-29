@@ -14,6 +14,7 @@ lexer_state::lexer_state() {
 
 namespace {
 	set<string> keywords {
+		"def",
 		"return",
 		"if",
 		"then",

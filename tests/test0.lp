@@ -5,17 +5,17 @@
 #use io;
 #use "foo.lp";
 
-foo :: (a: int, b: int) -> int {
+def foo(a: int, b: int) -> int {
     return a + b;
 }
 
-varargs :: (a: int, ...) -> () {
+def varargs(a: int, ...) -> () {
     for a {
         println("{}", it);
     }
 }
 
-main :: () {
+def main() {
     a := 3;
     b := 4.5; # another comment
     c : float = b + b * 9;
