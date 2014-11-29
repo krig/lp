@@ -20,6 +20,7 @@ namespace {
 		"if",
 		"then",
 		"else",
+		"elif",
 		"for",
 		"match",
 		"use",
@@ -138,6 +139,10 @@ void lexer_state::init(const char* filename)
 }
 
 
+	void error(const char* fmt, ...);
+	void warning(const char* fmt, ...);
+
+
 token lexer_state::next_token()
 {
 	token *t = next_token_impl();
@@ -147,6 +152,27 @@ token lexer_state::next_token()
 	return std::move(eof);
 }
 
+void lexer_state::error(const char* fmt, ...)
+{
+	char buf[2048];
+	va_list va_args;
+	va_start(va_args, fmt);
+	vsnprintf(buf, 2048, fmt, va_args);
+	va_end(va_args);
+
+	logging::log_context(_file, _stream._line, "").error("Lexer error: %s", buf);
+}
+
+void lexer_state::warning(const char* fmt, ...)
+{
+	char buf[2048];
+	va_list va_args;
+	va_start(va_args, fmt);
+	vsnprintf(buf, 2048, fmt, va_args);
+	va_end(va_args);
+
+	logging::log_context(_file, _stream._line, "").warn("Lexer error: %s", buf);
+}
 
 
 token* lexer_state::next_token_impl()
@@ -226,6 +252,32 @@ token* lexer_state::next_token_impl()
 		if (ch == '+') {
 			*ret = token(T_PLUS, intern_string("+", false), _file, _stream._line, _stream._column);
 			ch = _stream.advance();
+			return ret;
+		}
+		if (ch == '>') {
+			ch = _stream.advance();
+			if (ch == '>') {
+				ch = _stream.advance();
+				*ret = token(T_RSHIFT, intern_string(">>", false), _file, _stream._line, _stream._column-2);
+			} else if (ch == '=') {
+				ch = _stream.advance();
+				*ret = token(T_GTEQ, intern_string(">=", false), _file, _stream._line, _stream._column-2);
+			} else {
+				*ret = token(T_GT, intern_string(">", false), _file, _stream._line, _stream._column-1);
+			}
+			return ret;
+		}
+		if (ch == '<') {
+			ch = _stream.advance();
+			if (ch == '<') {
+				ch = _stream.advance();
+				*ret = token(T_LSHIFT, intern_string("<<", false), _file, _stream._line, _stream._column-2);
+			} else if (ch == '=') {
+				ch = _stream.advance();
+				*ret = token(T_LTEQ, intern_string("<=", false), _file, _stream._line, _stream._column-2);
+			} else {
+				*ret = token(T_LT, intern_string("<", false), _file, _stream._line, _stream._column-1);
+			}
 			return ret;
 		}
 		if (ch == '-') {
@@ -341,7 +393,7 @@ token* lexer_state::next_token_impl()
 token* lexer_state::read_string(int ch)
 {
 	if (ch != '"') {
-		LOG_ERROR("err, bug in compiler");
+		error("Expected \", got %d (0x%x)", ch, ch);
 		return nullptr;
 	}
 
@@ -371,14 +423,14 @@ token* lexer_state::read_string(int ch)
 				text += '\t';
 				break;
 			default:
-				LOG_WARN("Unknown escape sequence in string");
+				warning("Unknown escape sequence in string");
 				break;
 			}
 			ch = _stream.advance();
 			continue;
 		}
 		if (ch == '\n') {
-			LOG_ERROR("err, newline in string");
+			error("err, newline in string");
 			return nullptr;
 		}
 		u8_append(text, ch);
@@ -396,7 +448,7 @@ token* lexer_state::read_ident(int ch)
 	int start_line = _stream._line;
 	int start_col = _stream._column;
 	if (!isident0(ch)) {
-		LOG_ERROR("Unexpected '%c' (%d)", ch, ch);
+		error("Unexpected '%c' (%d)", ch, ch);
 		return nullptr;
 	}
 	buf[0] = '\0';
@@ -405,7 +457,7 @@ token* lexer_state::read_ident(int ch)
 		ch = _stream.advance();
 		ap = u8_append(buf, ch, sizeof(buf));
 		if (ap >= sizeof(buf)) {
-			LOG_ERROR("identifier too long");
+			error("identifier too long");
 			return nullptr;
 		}
 	}
@@ -429,7 +481,7 @@ token* lexer_state::read_number(int ch)
 		ch = _stream.advance();
 		buf[n++] = ch;
 		if (n == 512) {
-			LOG_ERROR("number constant too big");
+			error("number constant too big");
 			return nullptr;
 		}
 	}

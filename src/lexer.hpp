@@ -24,6 +24,12 @@
 		TOKEN(MINUS),			\
 		TOKEN(MUL),			\
 		TOKEN(DIV),			\
+		TOKEN(LT),			\
+		TOKEN(GT),			\
+		TOKEN(GTEQ),			\
+		TOKEN(LTEQ),			\
+		TOKEN(LSHIFT),			\
+		TOKEN(RSHIFT),			\
 		TOKEN(ASSIGN),			\
 		TOKEN(COLON_ASSIGN),		\
 		TOKEN(COLON),			\
@@ -117,6 +123,8 @@ struct lexer_state {
 	token* read_string(int ch);
 	token* read_ident(int ch);
 	token* read_number(int ch);
+	void error(const char* fmt, ...);
+	void warning(const char* fmt, ...);
 
 	const char* _file;
 	u8_stream _stream;
