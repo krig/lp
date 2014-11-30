@@ -2,7 +2,6 @@
 #include "file.hpp"
 #include "lexer.hpp"
 #include "u8.hpp"
-#include "intern.hpp"
 
 const char* token_name[] = {
 #define TOKEN(t) #t

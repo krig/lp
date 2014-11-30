@@ -17,8 +17,8 @@ module *parser_state::parse()
 	{ auto desc = t.to_str(); LOG_INFO("%s", desc.c_str()); }
 	switch (t._type) {
 	case T_KEYWORD: {
-		printf("keyword %s\n", t._text);
-		if (strcmp(t._text, "def") == 0) {
+		printf("keyword %s\n", t._text.str());
+		if (t._text == "def") {
 			printf("def!\n");
 		}
 	} break;

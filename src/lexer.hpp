@@ -1,6 +1,7 @@
 #pragma once
 
 #include "strfmt.hpp"
+#include "intern.hpp"
 #include <deque>
 
 
@@ -83,11 +84,11 @@ struct token {
 		return strfmt<>("%s (%s:%d:%d) [%s]",
 				token_name[_type],
 				_file, _line, _column,
-				_text);
+				_text.str());
 	}
 
 	Token _type;
-	const char* _text;
+	symbol _text;
 	const char* _file;
 	int _line;
 	int _column;
