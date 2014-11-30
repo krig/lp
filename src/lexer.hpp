@@ -62,33 +62,32 @@ typedef uint32_t rune_t;
 struct token {
 	token() {}
 	token(Token type, const char* text, const char* file, int line, int column)
-		: _type(type), _text(text), _file(file), _line(line), _column(column) {}
-	token(const token& token) : _type(token._type), _text(token._text), _file(token._file),
+		: type(type), text(text), _file(file), _line(line), _column(column) {}
+	token(const token& token) : type(token.type), text(token.text), _file(token._file),
 				    _line(token._line), _column(token._column) {}
 
 	token& operator=(const token& token) {
 		if (&token == this)
 			return *this;
-		_type = token._type;
-		_text = token._text;
+		type = token.type;
+		text = token.text;
 		_file = token._file;
 		_line = token._line;
 		_column = token._column;
 		return *this;
 	}
 
-	const char* name() const { return token_name[_type]; }
-	const char* text() const { return _text; }
+	const char* name() const { return token_name[type]; }
 
 	strfmt<> to_str() const {
 		return strfmt<>("%s (%s:%d:%d) [%s]",
-				token_name[_type],
+				token_name[type],
 				_file, _line, _column,
-				_text.str());
+				text());
 	}
 
-	Token _type;
-	symbol _text;
+	Token type;
+	symbol text;
 	const char* _file;
 	int _line;
 	int _column;

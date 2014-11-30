@@ -15,20 +15,20 @@ module *parser_state::parse()
 	m->_file = _mainfile->_file;
 	token t = _mainfile->next_token();
 	{ auto desc = t.to_str(); LOG_INFO("%s", desc.c_str()); }
-	switch (t._type) {
+	switch (t.type) {
 	case T_KEYWORD: {
-		printf("keyword %s\n", t._text.str());
-		if (t._text == "def") {
+		printf("keyword %s\n", t.text());
+		if (t.text == "def") {
 			printf("def!\n");
 		}
 	} break;
 	case T_IDENTIFIER: {
 		token op = _mainfile->next_token();
-		if (op._type == T_DOUBLE_COLON) {
+		if (op.type == T_DOUBLE_COLON) {
 			// immutable definition
-		} else if (op._type == T_COLON_ASSIGN) {
+		} else if (op.type == T_COLON_ASSIGN) {
 			// mutable definition
-		} else if (op._type == T_COLON) {
+		} else if (op.type == T_COLON) {
 			// typed mutable definition
 		}
 	} break;

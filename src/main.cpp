@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
 			token t;
 			lexer_state lex;
 			lex.init(infile);
-			while ((t = lex.next_token())._type != T_EOF) {
+			while ((t = lex.next_token()).type != T_EOF) {
 				LOG_INFO("%s", t.to_str().c_str());
 			}
 		} else {

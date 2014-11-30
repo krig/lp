@@ -39,6 +39,10 @@ struct symbol {
 		return _text[idx];
 	}
 
+	const char* operator()() const {
+		return _text;
+	}
+
 	const char* str() const {
 		return _text;
 	}
