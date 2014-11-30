@@ -50,8 +50,7 @@ int main(int argc, char* argv[]) {
 			lexer_state lex;
 			lex.init(infile);
 			while ((t = lex.next_token())._type != T_EOF) {
-				string desc = t.to_str();
-				LOG_INFO("%s", desc.c_str());
+				LOG_INFO("%s", t.to_str().c_str());
 			}
 		} else {
 			compiler_main(infile, outfile.c_str());

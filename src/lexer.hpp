@@ -79,12 +79,11 @@ struct token {
 	const char* name() const { return token_name[_type]; }
 	const char* text() const { return _text; }
 
-	string to_str() const {
-		strfmt<512> s("%s (%s) (%s:%d:%d)",
-			      token_name[_type],
-			      _text,
-			      _file, _line, _column);
-		return s.str();
+	strfmt<> to_str() const {
+		return strfmt<>("%s (%s:%d:%d) [%s]",
+				token_name[_type],
+				_file, _line, _column,
+				_text);
 	}
 
 	Token _type;

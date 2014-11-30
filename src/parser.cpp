@@ -14,7 +14,7 @@ module *parser_state::parse()
 	module* m = new module("main");
 	m->_file = _mainfile->_file;
 	token t = _mainfile->next_token();
-	{ string desc = t.to_str(); LOG_INFO("%s", desc.c_str()); }
+	{ auto desc = t.to_str(); LOG_INFO("%s", desc.c_str()); }
 	switch (t._type) {
 	case T_KEYWORD: {
 		printf("keyword %s\n", t._text);
@@ -33,8 +33,7 @@ module *parser_state::parse()
 		}
 	} break;
 	default: {
-		string ts = t.to_str();
-		LOG_ERROR("Unexpected token: %s", ts.c_str());
+		LOG_ERROR("Unexpected token: %s", t.to_str().c_str());
 		return nullptr;
 	};
 	}
