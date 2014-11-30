@@ -71,6 +71,12 @@
   Still 100% public domain
   Added boost endian configuration
   Restructured as a C++ class
+  -----------------
+  Modified 11/2014
+  By Kristoffer Gronlund <krig@koru.se>
+  Still 100% public domain
+  Removed boost endian configuration
+  Rely on GCC/clang definition of __BYTE_ORDER__
 
 */
 
@@ -94,8 +100,8 @@
 #include <string.h>
 #include "sha1.hpp"
 
-#include <boost/detail/endian.hpp>
-#ifdef BOOST_LITTLE_ENDIAN
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #undef WORDS_BIGENDIAN
 #else
 #ifndef WORDS_BIGENDIAN
