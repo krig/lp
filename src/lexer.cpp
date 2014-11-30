@@ -117,7 +117,8 @@ void lexer_state::init(const char* filename)
 		static const char* kw[] = {
 			"def", "return", "if", "then", "else", "elif", "for",
 			"match", "use", "struct", "enum", "union", "sizeof",
-			"addressof", "type", "with", "and", "or", "case"
+			"addressof", "type", "with", "and", "or", "case", "in",
+			"not", "as"
 		};
 		for (int i = 0; i < ASIZE(kw); ++i) {
 			keywords.insert(intern_string(kw[i], false));
@@ -161,7 +162,7 @@ void lexer_state::warning(const char* fmt, ...)
 	vsnprintf(buf, 2048, fmt, va_args);
 	va_end(va_args);
 
-	logging::log_context(_file, _stream._line, "").warn("Lexer error: %s", buf);
+	logging::log_context(_file, _stream._line, "").warn("Lexer warning: %s", buf);
 }
 
 
