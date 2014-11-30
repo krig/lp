@@ -192,3 +192,104 @@ have to memory manage such values. Actually I wouldn't be too much
 against using reference counters for that purpose. It would slow
 things down, but acceptably so I think.
 
+# lp
+
+A programming language project.
+
+The main idea is to write this as a C frontend. lex, parse, generate
+an in-memory AST, then transform that AST into a form that is
+trivially translated to C.
+
+The goal is to remain fully compatible with C/C++ as far as possible,
+but provide a language which is more expressive and pleasant.
+
+## optional typing
+
+I want to explore optional typing and occurrence typing, where
+functions can be defined with incomplete type information, and the
+type information being supplied through context. This doesn't mean
+runtime polymorphism: I still want the language to be static, but it
+would mean a more expressive type language.
+
+For example:
+
+    def min(a, b) {
+       return b < a ? b : a;
+    }
+
+Here, all types are unknown as min is "compiled". However, by the time
+min is actually used, the types involved are deduced and the
+appropriate typed function is generated. This is similar to how C++
+templates work, but not quite the same.
+
+Another variant of this is algebraic types. I would allow these in two
+different forms: as variants, basically syntactic sugar for
+typeid+value-union, or as compile-time-deduced algebraic types. The
+compiler can ensure that all cases are covered. This allows for
+"optional" as in Haskell, for example.
+
+    type Number int | float;
+
+    def min(a: Number, b: Number) {
+       return b < a ? b : a;
+    }
+
+I also want to allow type variables: These are more like C++
+templates. Type variables have to be derived at compile time. Mainly
+this allows for constraints on related values; "this value has the
+same type as this one". I haven't settled on a syntax for this, but I
+am considering reserving $foo as syntax for "type variable named foo".
+
+    def min($number: int | float; a: $number, b: $number) {
+       return b < a ? b : a;
+    }
+
+Note that $number and Number are not the same: Number is an algebraic
+combination of int and float, it represents both types. $number is
+instantiated as either int or float, and all references to $number are
+effectively replaced with references to that type.
+
+## lambda syntax
+
+I want to have the def syntax for functions, because I find it more
+readable. However, I should also allow the definition of lambda
+functions. I want to keep the syntax for lambda functions as similar
+as possible to regular function definition.
+
+## unified function call syntax
+
+Here is a complication: How do we ensure that a.b(c) calls b(a, c)
+when I also have functions as first class citizens, and b could be a
+function that takes only c as argument? This is excacerbated by
+function overloading, where b could be a function of multiple arity
+where both (a, c) and (c) are valid.
+
+Maybe the rule should be simply that if a has a member named b, b is
+called without any transformation. If a has no such member, a function
+named b which takes a first argument of a compatible type as the type
+of a is found.
+
+This would allow
+
+    3.to(5, (n) { println("%s", n); });
+
+## trailing function argument sugar
+
+I want to allow the swift-style sugar of trailing braces after a call
+translating into a lambda closure passed as the last argument to that
+call. So the above example could be written as
+
+   3.to(5) { println("%s", _1); }
+
+Here, `_{n}` refers to the nth argument. `_0` is a tuple of all
+arguments. The function signature for the block is automatically
+derived.
+
+## block capture
+
+all functions are blocks, and all blocks have capture. This is
+basically a context which is passed along with the function when it is
+treated as a value. The capture is part of the type signature since it
+affects the size of the object, but automatic pointer conversion
+should make this a non-issue.
+
