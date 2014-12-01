@@ -33,7 +33,12 @@ first class citizens. syntax?
 
 also
 
-    identity := {}; # block form
+identity := {}; # block form
+
+
+function type: `<arglist> -> <retlist>`
+
+with a body, the retlist and arrow are optional: `<arglist> { ... }`
 
 
 ## blocks
@@ -72,7 +77,78 @@ allow operator overloading yet..
 e :: enum { a b c d };
 for e {
   println("{} = {}", it.name, it);
+  }
+
+## or...
+
+Do away with concepts like structs and enums, and have types.
+
+There are product types, that is structs, really.
+
+There are sum types, that is variants, really.
+
+How do unions fit in? Union is an optimization of variants.. but it is
+also a necessary concept where you actually want to treat one type as
+another (to manipulate its bits). I need a separate union concept to
+represent this multi-typing, a single value has multiple types at
+once.
+
+Actually, values are not typed at all, types are just
+descriptions. Why shouldn't it be possible for a value to have
+multiple types?
+
+this idea enables concepts like the type Printable.. or maybe, we say
+that a type T is Printable if there is a function print(T).
+
+So.. we don't need to declare this for T, we just implement
+print(T). But we do need to declare Printable.
+
+Also, concepts like Printable can have any number of type parameters,
+not only T, and T can be constraint by other concepts.
+
+so..
+
+type ProductType = int * int * float;
+
+or..
+
+type ProductType {
+  a: int;
+  b: int;
+  c: float;
 }
+
+type SumType = int | float;
+
+type UnionType union int | float;
+
+
+# here, the result is runtime dispatch over
+# return type. But the compiler can check that
+# all cases are handled.
+parseInt :: (string) -> int | Error;
+parseFloat :: (string) -> float | Error;
+parseNumber :: (string) -> int | float | Error;
+
+# List<string> is a constraint, not a concrete type.
+# all we know about args is what functions we can call
+# on it - that is, any function that handles a List
+
+main :: (args: List(string)) {
+   for args {
+     case parseNumber(it) {
+     int => return it;
+     float => return floor(it);
+     }
+   }
+}
+
+# Error is special:
+# here, the error case is not handled, so
+# the type of main becomes int | Error
+# if the function type doesn't match after case
+# handling, there is a compilation error.
+
 
 ## structs
 
