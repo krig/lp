@@ -3,15 +3,28 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 
-struct module : ast::unit {
-	explicit module(const char* module_id);
+struct type_declaration;
+struct value_expression;
 
-	string _id;
-	string _file;
+struct declaration {
+	string name;
+	type_declaration* type;
+	value_expression* expr;
 };
 
-typedef dict<string, module *> module_registry;
+struct module {
+	explicit module(const char* id) : _id(id) {}
 
-module* get(module_registry *r, const char* module_id);
+	string _id;
 
+	dict<string, string> _env;
+	vector<string> _deps;
+	vector<string> _files;
+	vector<declaration*> _decls;
+};
 
+struct program {
+	module* _builtins;
+	vector<module*> _modules;
+	module* _main;
+};

@@ -8,7 +8,7 @@ void compile(const string& outfile, module *m)
 	if (m == nullptr)
 		return;
 
-	printf("%s -> %s\n", m->_file.c_str(), outfile.c_str());
+	printf("%s -> %s\n", m->_files[0].c_str(), outfile.c_str());
 
 	file of(outfile.c_str(), "wb");
 

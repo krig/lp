@@ -1,5 +1,7 @@
 #pragma once
 
+#include <deque>
+
 struct lexer_state;
 struct module;
 
@@ -83,7 +85,9 @@ struct parser_state {
 	unique_ptr<ast::fundecl> parse_fundecl();
 	unique_ptr<ast::fundef> parse_fundef();
 
-	void next_token();
+	bool advance();
+	token get_token(int n);
+
 	bool match(Token type);
 	bool match_keyword(const char* kw);
 
@@ -91,6 +95,7 @@ struct parser_state {
 	void warning(const char* fmt, ...);
 
 	lexer_state *_mainfile;
-	token _curr;
-	token _prev;
+	module *_module;
+
+	std::deque<token> _tokens;
 };
