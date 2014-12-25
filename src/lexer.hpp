@@ -130,3 +130,5 @@ struct lexer_state {
 	token _token;
 };
 
+// void init_lexer(lexer* lx, const char* filename);
+// token next_token(lexer* lx);

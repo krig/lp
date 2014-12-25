@@ -3,45 +3,74 @@
 #include "parser.hpp"
 #include "module.hpp"
 
-struct ast_expr;
-struct parse_error;
+struct cursor {
+	parser_state* state;
+	int idx;
 
-struct parser_result {
-	enum result_type {
-		Error,
-		Mismatch,
-		Expr
-	} type;
-	union {
-		ast_expr* _expr;
-		parse_error* _error;
-	};
+	explicit cursor(parser_state* state) : state(state), idx(-1) {}
+	cursor(parser_state* state, int idx) : state(state), idx(idx) {}
+	cursor(const cursor& c) : state(c.state), idx(c.idx) {}
+	cursor& operator=(const cursor& c) {
+		if (this == &c)
+			return *this;
+		state = c.state;
+		idx = c.idx;
+		return *this;
+	}
 
-	bool mismatch() const { return type == Mismatch; }
-	ast_expr* expr() const { return (type == Expr) ? _expr : nullptr; }
-	parse_error* error() const { return (type == Error) ? _error : nullptr; }
+	const token& get() {
+		while (state->history.size() <= idx)
+			state->history.push_back(state->lexer->next_token());
+		return state->history[idx];
+	}
 
-	parser_result() : type(Mismatch), _expr(nullptr) {}
-	explicit parser_result(ast_expr* expr) : type(Expr), _expr(expr) {}
-	explicit parser_result(parse_error* error) : type(Error), _error(error) {}
+	const token& peek() {
+		while (state->history.size() <= idx + 1)
+			state->history.push_back(state->lexer->next_token());
+		return state->history[idx + 1];
+	}
+
+	void consume() {
+		++idx;
+	}
 };
 
-struct parse_error {
-	virtual ~parse_error() {}
-	virtual const char* what() = 0;
-};
-
-typedef parser_result ParseFunction(parser_state* state);
-
-parser_result parse_toplevel(parser_state* state)
+bool match_keyword(cursor& c, const char* kw)
 {
-	return parser_result();
+	const token& t = c.peek();
+	return t.type == T_KEYWORD && t.text == kw;
 }
 
+bool match_token(cursor& c, Token t)
+{
+	return c.peek().type == t;
+}
+
+bool parse_def(cursor& c)
+{
+	token ident = c.peek();
+	c.consume();
+	if (match_token(c, T_LPAREN))
+		c.consume();
+	return true;
+}
+
+bool parse_toplevel(parser_state* state, module* m)
+{
+	cursor c(state);
+	if (c.peek().type == T_EOF)
+		return false;
+	if (match_keyword(c, "def")) {
+		c.consume();
+		return parse_def(c);
+	}
+	return false;
+}
 
 void parser_state::init(lexer_state* lexer)
 {
 	this->lexer = lexer;
+	this->history.clear();
 }
 
 
@@ -51,17 +80,8 @@ module *parser_state::parse()
 	module* m = new module("main");
 	m->_files.push_back(lexer->_file);
 
-	while (true) {
-		auto result = parse_toplevel(this);
-		if (result.error()) {
-			error("Parse error: %s", result.error()->what());
-		} else if (result.expr()) {
-			// TODO: handle successful parse
-		} else {
-			// TODO
-			break;
-		}
-	}
+	while (parse_toplevel(this, m))
+		;
 
 	return m;
 }

@@ -3,6 +3,14 @@
 #include "lexer.hpp"
 #include "u8.hpp"
 
+const char* keyword_list[] = {
+	"cdef", "def", "return", "if", "then", "else", "elif", "for",
+	"match", "use", "struct", "enum", "union", "sizeof",
+	"addressof", "type", "with", "and", "or", "case", "in",
+	"not", "as"
+};
+
+
 const char* token_name[] = {
 #define TOKEN(t) #t
 	TOKENS
@@ -114,14 +122,8 @@ void u8_stream::read_file(const char* filename)
 void lexer_state::init(const char* filename)
 {
 	if (keywords.size() == 0) {
-		static const char* kw[] = {
-			"def", "return", "if", "then", "else", "elif", "for",
-			"match", "use", "struct", "enum", "union", "sizeof",
-			"addressof", "type", "with", "and", "or", "case", "in",
-			"not", "as"
-		};
-		for (int i = 0; i < ASIZE(kw); ++i) {
-			keywords.insert(intern_string(kw[i], false));
+		for (int i = 0; i < ASIZE(keyword_list); ++i) {
+			keywords.insert(intern_string(keyword_list[i], false));
 		}
 	}
 

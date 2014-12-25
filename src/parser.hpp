@@ -13,4 +13,5 @@ struct parser_state {
 	void warning(const char* fmt, ...);
 
 	lexer_state* lexer;
+	vector<token> history;
 };
