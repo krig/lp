@@ -1,4 +1,4 @@
 test.ll: test.c
-	clang -S -emit-llvm $<
+	clang -O2 -S -emit-llvm $<
 
 all: test.ll
