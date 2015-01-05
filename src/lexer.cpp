@@ -32,7 +32,14 @@ namespace {
 	}
 
 	inline bool isnumeric(rune_t ch) {
-		return isdigit(ch) || ch == '_' || ch == '.' || ch == 'u' || ch == 'f' || ch == 'l';
+		return isdigit(ch) || ch == '_' || ch == '.'
+			|| ch == 'o' || ch == 'O'
+			|| ch == 'b' || ch == 'B'
+			|| ch == 'x' || ch == 'X'
+			|| ch == 'u' || ch == 'U'
+			|| ch == 'f' || ch == 'F'
+			|| ch == 'g' || ch == 'G'
+			|| ch == 'e' || ch == 'E';
 	}
 
 	int _u8_getter(void * up)
@@ -484,6 +491,7 @@ token* lexer_state::read_number(int ch)
 	ch = _stream.advance();
 	buf[n] = '\0';
 
+	// TODO: proper number parsing
 	if (strchr(buf, '.')) {
 		_token = token(T_FLOAT, intern_string(buf, true), _file, start_line, start_col);
 	} else {
