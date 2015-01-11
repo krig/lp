@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include <vector>
 
 typedef struct
 {
@@ -57,13 +58,8 @@ enum TokenType
 
 typedef struct
 {
-	char* text;
-	int32_t size;
-	int32_t capacity;
-
-	char** interned;
-	int32_t num_interned;
-	int32_t cap_interned;
+	std::vector<char> text;
+	std::vector<char*> interned;
 
 	int (*nextfn)();
 	int unget;
@@ -74,47 +70,19 @@ typedef struct
 
 static void append_char(KlexState* state, int ch)
 {
-	if (state->text == NULL) {
-		state->text = (char*)malloc(1024);
-		memset(state->text, 0, 1024);
-		state->capacity = 1024;
-	}
-	if (state->size >= state->capacity - 1) {
-		state->capacity *= 2;
-		state->text = (char*)realloc(state->text, state->capacity);
-		memset(state->text + state->size, 0, state->capacity - state->size);
-	}
-	state->text[state->size++] = ch;
+	state->text.push_back(ch);
 }
 
-static char* reset_text(KlexState* state)
+static const char* reset_text(KlexState* state)
 {
-	if (state->text == NULL) {
-		state->text = (char*)malloc(1024);
-		memset(state->text, 0, 1024);
-		state->capacity = 1024;
-	}
-	state->size = 0;
-	return state->text;
+	state->text.clear();
+	return "";
 }
 
 static char* intern_text(KlexState* state)
 {
-	int i;
-	if (state->interned == NULL) {
-		state->cap_interned = 1024;
-		state->interned = (char**)malloc(1024 * sizeof(char*));
-		state->num_interned = 0;
-	}
-	for (i = 0; i < state->num_interned; ++i)
-		if (strcmp(state->interned[i], state->text) == 0)
-			return state->interned[i];
-	if (state->num_interned >= state->cap_interned) {
-		state->cap_interned *= 2;
-		state->interned = (char**)realloc(state->interned, state->cap_interned * sizeof(char*));
-	}
-	state->interned[state->num_interned] = strdup(state->text);
-	return state->interned[state->num_interned++];
+	state->interned.push_back(strdup(state->text.data()));
+	return state->interned.back();
 }
 
 static int get_next(KlexState* state)
@@ -173,8 +141,8 @@ static Token parse_string(KlexState* state, int stringtype, int raw)
 		append_char(state, ch);
 	}
 
-	state->text[state->size] = '\0';
-	ret.text = strdup(ret.text);
+	append_char(state, '\0');
+	ret.text = strdup(state->text.data());
 	return ret;
 }
 
@@ -221,7 +189,7 @@ static Token parse_number(KlexState* state, int initial)
 			break;
 		}
 	}
-	state->text[state->size] = '\0';
+	append_char(state, '\0');
 	ret.text = intern_text(state);
 	return ret;
 }
@@ -367,7 +335,7 @@ parse_ident_loop:
 		ch = get_next(state);
 		if (!isalnum(ch) && ch != '_') {
 			state->unget = ch;
-			state->text[state->size] = '\0';
+			append_char(state, '\0');
 			ret.text = intern_text(state);
 			goto match_keyword;
 		}
@@ -395,8 +363,6 @@ done:
 int main()
 {
 	KlexState state;
-	Token t;
-
 	memset(&state, 0, sizeof(KlexState));
 	state.nextfn = getchar;
 	state.unget = -1;
@@ -404,7 +370,7 @@ int main()
 	state.column = 0;
 
 	for (;;) {
-		t = klex(&state);
+		auto t = klex(&state);
 		if (t.type == T_EOF)
 			break;
 		printf("%d %s (%d:%d)\n", t.type, t.text, t.line, t.column);
