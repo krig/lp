@@ -1,6 +1,6 @@
 #!/bin/sh
-clang -O2 -S -emit-llvm klex.c
-gcc -o klex -g klex.c
+clang -O2 -S -emit-llvm klex.cpp
+gcc -o klex -g klex.cpp
 ./klex <<EOF
 # this is test klex input!+12-3
 return a + b12;
